@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="../js/set_account_number.js"></script>
+        <style type="text/css">
+            div.div{
+                font-size:25px;
+                font-style=italic;
+                font-weight=10px;
+                background-color=transparent;
+                position:relative;
+                left:0;
+                bottom:0;
+                right:0;
+                top:0;
+                margin:20%;
+            }
+            body.body{
+                background-image:url(/imgs/set.jpg);
+                background-attachment:fixed;
+                background-repeat:no-repeat;
+                background-size:cover;
+                -moz-background-size:cover;
+                -webkit-background-size:cover;
+            }
+        </style>
+    </head>
+    <body class="body">
+        <div class="div">
+                your name:
+                <input type="TEXT" id="name" name="name" placeholder="your name">
+                </br>
+                your account number:
+                <INPUT type="TEXT" id="account_number" name="account_number" placeholder="your account number">
+                </br>
+                your password:
+                <input type="PASSWORD" id="password" name="password" placeholder="your password">
+                </br>
+                again
+                <input type="PASSWORD" id="confirm_it" name="confirm_it" placeholder="your password again">
+                <br/>
+                <button onclick="check()">go</button>
+        </div>
+    </body>
+</html>
