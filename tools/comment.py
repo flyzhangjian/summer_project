@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env pytho 
 # coding=utf-8
 import python_tools
+import time
 
 class comment():
 
-    def __init__(self,parent_id,article_id,commen_body,comment_from_id,comment_to_id):
+    def __init__(self,parent_id,article_id,commen_body = 'ha',comment_from_id = 12,comment_to_id = 12):
         self.parent_id = parent_id
         self.article_id = article_id
         self.comment_body = commen_body
@@ -13,10 +14,11 @@ class comment():
 
     def insert_into(self):
         connection = python_tools.connect_to_database()
+        time_now = time.time()
         try:
             with connection.cursor() as cursor:
-                sql = "INSERT INTO comments(parent_id,article_id,commen_body,comment_from_id,comment_to_id) VALUES(%s,%s,%s,%s%s)"
-                cursor.execute(sql,(self.parent_id,self.article_id,self.comment_body,self.comment_from_id,self.comment_to_id))
+                sql = "INSERT INTO comments(parent_id,article_id,comment_body,coment_from_id,coment_to_id,time) VALUES(%s,%s,%s,%s,%s,%s)"
+                cursor.execute(sql,(self.parent_id,self.article_id,self.comment_body,self.comment_from_id,self.comment_to_id,time_now))
             connection.commit()
         finally:
             connection.close()
@@ -25,19 +27,42 @@ class comment():
         connection = python_tools.connect_to_database()
         try:
             with connection.cursor() as cursor:
-                sql = "WITH COMMENT_CTE(comment_id,parent_id,comment_body,t_level)\
-                        AS(\
-                        SELECT comment_id,parent_id,comment_body,0 AS t_level FROM comments\
-                        WHERE parent_id = %s\
-                        UNION ALL\
-                        SELECT c.comment_id,c.parent_id,c.comment_body,ce.t_level + 1 FROM comments AS c \
-                        INNER JOIN COMMENT_CTE AS ce\
-                        ON c.parent_id = ce.comment_id\
-)\
-                        SELECT * FROM COMMENT_CTE"
+                sql = "SELECT * FROM comments WHERE article_id = %s ORDER BY time"
                 cursor.execute(sql,(self.article_id))
                 result = cursor.fetchall()
         finally:
             connection.close()
         return result
 
+    def select_from_name(self):
+        connection = python_tools.connect_to_database()
+        try:
+            with connection.cursor() as cursor:
+                sql = "SELECT comments.coment_from_id,user_information.user_name FROM comments INNER JOIN user_information ON user_information.user_id = comments.coment_from_id"
+                cursor.execute(sql)
+                result = cursor.fetchall()
+        finally:
+            connection.close()
+        return result
+
+    def select_to_name(self):
+        connection = python_tools.connect_to_database()
+        try:
+            with connection.cursor() as cursor:
+                sql = "SELECT comments.coment_to_id,user_information.user_name FROM comments INNER JOIN user_information ON user_information.user_id = comments.coment_to_id"
+                cursor.execute(sql)
+                result = cursor.fetchall()
+        finally:
+            connection.close()
+        return result
+
+    def select_user(self):
+        connection = python_tools.connect_to_database()
+        try:
+            with connection.cursor() as cursor:
+                sql = "SELECT comments.article_id,articles.user_id FROM comments INNER JOIN articles ON comments.article_id = articles.article_id"
+                cursor.execute(sql)
+                result = cursor.fetchall()
+        finally:
+            connection.close()
+        return result

@@ -4,7 +4,7 @@
 import sys,json,time
 sys.path.append('tools')
 import python_tools,user_check_insert,user_info,get_data
-import token_process,article
+import token_process,article,comment
 
 def application(environ,start_response):
     user_data = get_data.application(environ,start_response)
@@ -105,6 +105,51 @@ def check_focus(environ,start_response):
     token_check_result = token_process.token(user_data['token'],user_data['user_id']).token_check()
     if token_check_result:
         response = python_tools.check_focus(user_data['user_id'])
+        start_response('200 OK',[('Content-Type','text/html')])
+        return json.dumps(response).encode()
+    else:
+        start_response('200 OK',[('Content-Type','text/html')])
+        return json.dumps({}).encode()
+
+def check_person(environ,start_response):
+    user_data = get_data.application(environ,start_response)
+    user_to_id = int(user_data['check_id'].split('_')[1])
+    token_check_result = token_process.token(user_data['token'],user_data['user_id']).token_check()
+    if token_check_result:
+        response = python_tools.check_focus_one(user_to_id)
+        start_response('200 OK',[('Content-Type','text/html')])
+        return json.dumps(response).encode()
+    else:
+        start_response('200 OK',[('Content-Type','text/html')])
+        return json.dumps({}).encode()
+
+def post_comment(environ,start_response):
+    user_data = get_data.application(environ,start_response)
+    article_id = int(user_data['id_to'].split('_')[1])
+    user_to_id = int(user_data['id_to'].split('_')[2])
+    token_check_result = token_process.token(user_data['token'],user_data['user_id']).token_check()
+    if token_check_result:
+        comment_temp = comment.comment(user_data['parent_id'],article_id,user_data['comment_body'],user_data['user_id'],user_to_id)
+        comment_temp.insert_into()
+        start_response('200 OK',[('Content-Type','text/html')])
+        return json.dumps({'result':1}).encode()
+    else:
+        start_response('200 OK',[('Content-Type','text/html')])
+        return json.dumps({'result':0}).encode()
+
+def check_comment(environ,start_response):
+    user_data =get_data.application(environ,start_response)
+    article_id = int(user_data['id_to'].split('_')[1])
+    token_check_result = token_process.token(user_data['token'],user_data['user_id']).token_check()
+    if token_check_result:
+        response = comment.comment(1,article_id).select_child()
+        response_from_name = comment.comment(1,article_id).select_from_name()
+        response_to_name = comment.comment(1,article_id).select_to_name()
+        response_articles = comment.comment(1,article_id).select_user()
+        response = python_tools.check_to(response,response_to_name)
+        response = python_tools.check_from(response,response_from_name)
+        print(response_articles)
+        response = python_tools.check_user_article(response,response_articles)
         start_response('200 OK',[('Content-Type','text/html')])
         return json.dumps(response).encode()
     else:

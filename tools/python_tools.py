@@ -84,3 +84,51 @@ def check_focus(user_id):
     finally:
         connection.close()
         return result
+
+def check_focus_one(user_id):
+    connection = connect_to_database()
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT article_id,article,time,user_name FROM articles WHERE user_id = %s"
+            cursor.execute(sql,(user_id))
+            result = cursor.fetchall()
+    finally:
+        connection.close()
+    for x in result:
+        x['user_id'] = user_id
+    return result
+
+def sort(response,response_p,response_n,x,y):
+    if x >= len(response)-1:
+        return response
+    else:
+        if response_p['comment_id'] == response_n['parent_id']:
+            temp = response[y]
+            response[y] = response_p
+            response[x] = response_n
+        else:
+            if y < len(response)-1:
+                return sort(response,response[x+1],x,y+1)
+            else:
+                return sort(response,response[x],response[x+1],x+1,x+1)
+
+def check_to(response,response_to_name):
+    for x in response:
+        for y in response_to_name:
+            if x['coment_to_id'] == y['coment_to_id']:
+                x['comment_to_name'] = y['user_name']
+    return response
+
+def check_from(response,response_from_name):
+    for x in response:
+        for y in response_from_name:
+            if x['coment_from_id'] == y['coment_from_id']:
+                x['comment_from_name'] = y['user_name']
+    return response
+
+def check_user_article(response,response_p):
+    for x in response:
+        for y in response_p:
+            if x['article_id'] == y['article_id']:
+                x['user_article'] = y['user_id']
+    return response

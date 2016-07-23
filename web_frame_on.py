@@ -21,3 +21,9 @@ def application(environ,start_response):
         return main.collect(environ,start_response)
     elif path == '/check_focus':
         return main.check_focus(environ,start_response)
+    elif path == '/check_person':
+        return main.check_person(environ,start_response)
+    elif path == '/post_comment':
+        return main.post_comment(environ,start_response)
+    elif path == '/comment':
+        return main.check_comment(environ,start_response)
