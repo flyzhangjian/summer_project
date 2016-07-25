@@ -6,6 +6,8 @@ sys.path.append('tools')
 import python_tools,user_check_insert,user_info,get_data
 import token_process,article,comment
 
+user_online = []
+
 def application(environ,start_response):
     user_data = get_data.application(environ,start_response)
     print(user_data)
@@ -33,6 +35,8 @@ def log_in(environ,start_response):
                 token = str(python_tools.get_token(user_infor))
                 time_o = time.time()
                 python_tools.insert_token(user_infor[0]['user_id'],token,time_o)
+                user_online.append(user_infor[0]['user_id'])
+                print(user_online)
                 return json.dumps({"user_id":user_infor[0]['user_id'],"result":1,"token":token}).encode()
             else:
                 start_response('200 OK',[('Content-Type','text/html')])
@@ -127,6 +131,8 @@ def post_comment(environ,start_response):
     user_data = get_data.application(environ,start_response)
     article_id = int(user_data['id_to'].split('_')[1])
     user_to_id = int(user_data['id_to'].split('_')[2])
+    if user_to_id in user_online:
+        comment.insert_online_comment(user_data['user_id'],user_to_id,article_id)
     token_check_result = token_process.token(user_data['token'],user_data['user_id']).token_check()
     if token_check_result:
         comment_temp = comment.comment(user_data['parent_id'],article_id,user_data['comment_body'],user_data['user_id'],user_to_id)

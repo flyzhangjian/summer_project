@@ -3,6 +3,16 @@
 import python_tools
 import time
 
+def insert_online_comment(user_id,user_to_id,article_id):
+    connection = python_tools.connect_to_database()
+    try:
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO immediate_comment(user_id,user_to_id,article_id) VALUES(%s,%s,%s)"
+            cursor.execute(sql,(user_id,user_to_id,article_id))
+        connection.commit()
+    finally:
+        connection.close()
+
 class comment():
 
     def __init__(self,parent_id,article_id,commen_body = 'ha',comment_from_id = 12,comment_to_id = 12):
